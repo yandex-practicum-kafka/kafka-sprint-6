@@ -1,0 +1,1 @@
+{"schema":"{\"type\":\"record\",\"name\":\"key\",\"namespace\":\"my.test\",\"fields\":[{\"name\":\"name\",\"type\":\"string\"}]}"}

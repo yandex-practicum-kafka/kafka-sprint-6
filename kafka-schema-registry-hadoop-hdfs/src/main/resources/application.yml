@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: spring-kafka-app
+
+  kafka:
+    # Bootstrap servers с fallback'ами на переменные окружения
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:${KAFKA_BOOTSTRAP_SERVERS:kafka-1:9092,kafka-2:9092,kafka-3:9092}}
+    # Имя топика (можно переопределить через TOPIC_NAME)
+    topic: ${TOPIC_NAME:test-topic}
+
+    properties:
+      # URL Schema Registry для Confluent Avro сериализаторов/десериализаторов
+      schema.registry.url: ${SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL:${KAFKA_SCHEMA_REGISTRY_URL:http://schema-registry:8081}}
+
+    producer:
+      # В YAML ключ и значение сериализаторов указаны как Avro для примера (оставлено как было)
+      key-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+
+    consumer:
+      group-id: simple-message-group
+      auto-offset-reset: earliest
+      # В YAML в примере указаны Avro десериализаторы для ключа/значения (оставлено как было)
+      key-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+      properties:
+        # specific.avro.reader — возвращать SpecificRecord вместо GenericRecord
+        specific.avro.reader: true
+
+app:
+
+  scheduler:
+    # интервал в миллисекундах для планировщика
+    interval-ms: ${APP_SCHEDULER_INTERVAL_MS:5000}
+
+  message:
+    # префикс для генерируемых сообщений
+    prefix: ${APP_MESSAGE_PREFIX:Message_}
+
+  hdfs:
+    # URI HDFS, директория и пользователь (возможен fallback на env vars)
+    uri: ${HADOOP_FS_DEFAULTFS:hdfs://hadoop-namenode:9000}
+    dir: ${HDFS_DIR:/data}
+    user: ${HADOOP_USER_NAME:root}
+    use-datanode-hostname: ${HDFS_CLIENT_USE_DATANODE_HOSTNAME:true}
+    file-prefix: simple-messages-
+    file-extension: .ndjson
+
+logging:
+  level:
+    # Подавляем подробные логи для SaslDataTransferClient
+    org.apache.hadoop.hdfs.protocol.datatransfer.sasl.SaslDataTransferClient: ERROR

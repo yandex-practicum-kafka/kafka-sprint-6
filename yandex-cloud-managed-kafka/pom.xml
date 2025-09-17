@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>app</artifactId>
+    <packaging>jar</packaging>
+    <version>0.1.0</version>
+
+	  <properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<kafka.clients.version>2.6.0</kafka.clients.version>
+		<confluent.version>6.0.0</confluent.version>
+		<avro.version>1.9.1</avro.version>
+		<slf4j.version>1.7.30</slf4j.version>
+	  </properties>
+
+	  <repositories>
+		<repository>
+		  <id>confluent</id>
+		  <name>Confluent Maven repo</name>
+		  <url>https://packages.confluent.io/maven/</url>
+		</repository>
+	  </repositories>
+
+	  <dependencies>
+	  
+		<dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-databind</artifactId>
+		  <version>2.11.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-core</artifactId>
+		  <version>2.11.2</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-annotations</artifactId>
+		  <version>2.11.2</version>
+		</dependency>
+	  
+		<!-- Logging -->
+		<dependency>
+		  <groupId>org.slf4j</groupId>
+		  <artifactId>slf4j-simple</artifactId>
+		  <version>${slf4j.version}</version>
+		</dependency>
+
+		<!-- Kafka clients -->
+		<dependency>
+		  <groupId>org.apache.kafka</groupId>
+		  <artifactId>kafka-clients</artifactId>
+		  <version>${kafka.clients.version}</version>
+		</dependency>
+
+		<!-- Confluent Avro serializer & schema registry client -->
+		<dependency>
+		  <groupId>io.confluent</groupId>
+		  <artifactId>kafka-avro-serializer</artifactId>
+		  <version>${confluent.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>io.confluent</groupId>
+		  <artifactId>kafka-schema-registry-client</artifactId>
+		  <version>${confluent.version}</version>
+		</dependency>
+
+		<!-- Avro -->
+		<dependency>
+		  <groupId>org.apache.avro</groupId>
+		  <artifactId>avro</artifactId>
+		  <version>${avro.version}</version>
+		</dependency>
+	  </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.example.App</mainClass>
+                                </manifest>
+                            </archive>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.example.App</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

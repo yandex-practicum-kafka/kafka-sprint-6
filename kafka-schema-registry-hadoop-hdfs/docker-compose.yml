@@ -1,0 +1,231 @@
+version: '3.8'
+
+x-kafka-common-env: &kafka-common-env
+  KAFKA_KRAFT_CLUSTER_ID: S427TXVITROMvXqgOokoDA
+  KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
+  KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093'
+  KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  KAFKA_CFG_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+  KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+  KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+  ALLOW_PLAINTEXT_LISTENER: 'yes'
+
+x-kafka-common: &kafka-common
+  image: 'bitnami/kafka:3.5.0'
+  environment: *kafka-common-env
+  networks:
+    - kafka-net
+
+x-kafka-deps: &kafka-deps
+  - kafka-1
+  - kafka-2
+  - kafka-3
+
+x-kafka-env: &kafka-env
+  KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9092,kafka-2:9092,kafka-3:9092"
+
+x-hadoop-common: &hadoop-common
+  image: 'apache/hadoop:3.4.1'
+  user: root
+  restart: always
+  platform: linux/amd64
+  deploy:
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 2g
+  shm_size: 10G
+  networks:
+    - kafka-net
+
+x-datanode-entry: &datanode-entry
+  entrypoint:
+    - /bin/bash
+    - /datanode_entrypoint.sh
+  command:
+    - hdfs
+    - datanode
+  depends_on:
+    - hadoop-namenode
+
+x-app-common: &app-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: spring-kafka-app:latest
+  networks:
+    - kafka-net
+  depends_on: &app-deps
+    - kafka-1
+    - kafka-2
+    - kafka-3
+    - schema-registry
+    - hadoop-namenode
+    - hadoop-datanode-1
+    - hadoop-datanode-2
+    - hadoop-datanode-3
+  environment: &app-env
+    SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9092,kafka-3:9092
+    SPRING_KAFKA_PROPERTIES_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+    TOPIC_NAME: test-topic
+    HADOOP_USER_NAME: root
+    HADOOP_FS_DEFAULTFS: hdfs://hadoop-namenode:9000
+    HDFS_CLIENT_USE_DATANODE_HOSTNAME: "true"
+    HDFS_DIR: /data
+
+services:
+
+  kafka-1:
+    <<: *kafka-common
+    container_name: kafka-1
+    hostname: kafka-1
+    environment:
+      <<: *kafka-common-env
+      KAFKA_CFG_NODE_ID: '1'
+      KAFKA_CFG_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-1:9092'
+    ports:
+      - '9092:9092'
+    volumes:
+      - kafka1-data:/bitnami/kafka
+
+  kafka-2:
+    <<: *kafka-common
+    container_name: kafka-2
+    hostname: kafka-2
+    environment:
+      <<: *kafka-common-env
+      KAFKA_CFG_NODE_ID: '2'
+      KAFKA_CFG_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-2:9092'
+    ports:
+      - '9093:9092'
+    volumes:
+      - kafka2-data:/bitnami/kafka
+
+  kafka-3:
+    <<: *kafka-common
+    container_name: kafka-3
+    hostname: kafka-3
+    environment:
+      <<: *kafka-common-env
+      KAFKA_CFG_NODE_ID: '3'
+      KAFKA_CFG_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-3:9092'
+    ports:
+      - '9094:9092'
+    volumes:
+      - kafka3-data:/bitnami/kafka
+
+  schema-registry:
+    image: 'confluentinc/cp-schema-registry:7.4.1'
+    container_name: schema-registry
+    depends_on: *kafka-deps
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "PLAINTEXT://kafka-1:9092,PLAINTEXT://kafka-2:9092,PLAINTEXT://kafka-3:9092"
+      SCHEMA_REGISTRY_LISTENERS: 'http://0.0.0.0:8081'
+      <<: *kafka-env
+    ports:
+      - '8081:8081'
+    networks:
+      - kafka-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.0
+    container_name: kafka-ui
+    depends_on: *kafka-deps
+    environment:
+      KAFKA_CLUSTERS_0_NAME: kraft
+      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS:-kafka-1:9092,kafka-2:9092,kafka-3:9092}
+      <<: *kafka-env
+    ports:
+      - '8080:8080'
+    networks:
+      - kafka-net
+
+  hadoop-namenode:
+    <<: *hadoop-common
+    container_name: hadoop-namenode
+    hostname: hadoop-namenode
+    ports:
+      - '9870:9870'
+      - '9000:9000'
+    volumes:
+      - "${CORE_SITE}:/opt/hadoop/etc/hadoop/core-site.xml"
+      - './config/hdfs-site-namenode.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml'
+      - './namenode_entrypoint.sh:/namenode_entrypoint.sh'
+      - 'namenode-data:/usr/local/hadoop/hdfs/namenode'
+    entrypoint:
+      - /bin/bash
+      - /namenode_entrypoint.sh
+    command:
+      - hdfs
+      - namenode
+
+  hadoop-datanode-1:
+    <<: [ *hadoop-common, *datanode-entry ]
+    container_name: hadoop-datanode-1
+    hostname: hadoop-datanode-1
+    ports:
+      - '9864:9864'
+      - '9970:9970'
+    volumes:
+      - "${CORE_SITE}:/opt/hadoop/etc/hadoop/core-site.xml"
+      - './config/hdfs-site-datanode-1.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml'
+      - "${DATANODE_ENTRY}:/datanode_entrypoint.sh"
+      - 'datanode1-data:/usr/local/hadoop/hdfs/datanode'
+
+  hadoop-datanode-2:
+    <<: [ *hadoop-common, *datanode-entry ]
+    container_name: hadoop-datanode-2
+    hostname: hadoop-datanode-2
+    ports:
+      - '9865:9865'
+      - '9971:9971'
+    volumes:
+      - "${CORE_SITE}:/opt/hadoop/etc/hadoop/core-site.xml"
+      - './config/hdfs-site-datanode-2.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml'
+      - "${DATANODE_ENTRY}:/datanode_entrypoint.sh"
+      - 'datanode2-data:/usr/local/hadoop/hdfs/datanode'
+
+  hadoop-datanode-3:
+    <<: [ *hadoop-common, *datanode-entry ]
+    container_name: hadoop-datanode-3
+    hostname: hadoop-datanode-3
+    ports:
+      - '9866:9866'
+      - '9972:9972'
+    volumes:
+      - "${CORE_SITE}:/opt/hadoop/etc/hadoop/core-site.xml"
+      - './config/hdfs-site-datanode-3.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml'
+      - "${DATANODE_ENTRY}:/datanode_entrypoint.sh"
+      - 'datanode3-data:/usr/local/hadoop/hdfs/datanode'
+
+  app-producer:
+    <<: *app-common
+    container_name: spring-kafka-producer
+    environment:
+      <<: *app-env
+      SPRING_PROFILES_ACTIVE: producer
+      APP_SCHEDULER_INTERVAL_MS: '5000'
+      APP_MESSAGE_PREFIX: Producer_Message_
+
+  app-consumer:
+    <<: *app-common
+    container_name: spring-kafka-consumer
+    environment:
+      <<: *app-env
+      SPRING_PROFILES_ACTIVE: consumer
+      APP_MESSAGE_PREFIX: Consumer_Received_
+
+networks:
+  kafka-net:
+    driver: bridge
+
+volumes:
+  kafka1-data:
+  kafka2-data:
+  kafka3-data:
+  namenode-data:
+  datanode1-data:
+  datanode2-data:
+  datanode3-data:

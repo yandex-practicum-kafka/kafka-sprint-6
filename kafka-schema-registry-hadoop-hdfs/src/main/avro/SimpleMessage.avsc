@@ -1,0 +1,10 @@
+{
+  "namespace": "com.example.avro",
+  "type": "record",
+  "name": "SimpleMessage",
+  "fields": [
+    { "name": "id", "type": "string" },
+    { "name": "content", "type": "string" },
+    { "name": "timestamp", "type": "long" }
+  ]
+}
