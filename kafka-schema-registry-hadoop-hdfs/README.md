@@ -8,7 +8,7 @@
 
 - Приложение состоит из двух сервисов (app-producer и app-consumer), поднятых через docker‑compose и собранных из Dockerfile как один образ `spring-kafka-app`. Producer в профиле `producer` периодически генерирует Avro‑сообщения и отправляет их в Kafka через три брокера (KRaft кластер `kafka-1,2,3`) с использованием Schema Registry для управления схемой. Consumer в профиле consumer читает сообщения из того же топика, десериализует через Schema Registry и записывает содержимое в HDFS (кластера Hadoop — NameNode + 3 DataNode), используя HDFS client (Hadoop API) и параметры из окружения (HDFS_URI, HADOOP_USER_NAME и т.д.).  
   
-- Инфраструктура в `[docker-compose.yml](docker-compose.yml)`: три брокера `bitnami/kafka` в KRaft режиме, Confluent Schema Registry, веб‑интерфейс Kafka UI, NameNode и три DataNode (`apache/hadoop`), плюс два экземпляра приложения. Конфиги Hadoop (`core-site.xml` и `hdfs-site‑*.xml`), скрипты `entrypoint.sh` и avro‑схема (`[src/main/avro/SimpleMessage.avsc](src/main/avro/SimpleMessage.avsc)`) монтируются в контейнеры.  
+- Инфраструктура в [docker-compose.yml](docker-compose.yml): три брокера `bitnami/kafka` в KRaft режиме, Confluent Schema Registry, веб‑интерфейс Kafka UI, NameNode и три DataNode (`apache/hadoop`), плюс два экземпляра приложения. Конфиги Hadoop (`core-site.xml` и `hdfs-site‑*.xml`), скрипты `entrypoint.sh` и avro‑схема ([src/main/avro/SimpleMessage.avsc](src/main/avro/SimpleMessage.avsc)) монтируются в контейнеры.  
   
 ### Структура проекта  
 
@@ -115,16 +115,16 @@
 
 **Набор конфигураций и entrypoint-скриптов для запуска простого HDFS-кластера в контейнерах**: один NameNode и несколько DataNode. Файлы задают URI файловой системы, директории хранения и сетевые/HTTP-порты, а скрипты подготавливают каталоги и запускают процессы.  
 
-`[datanode_entrypoint.sh](datanode_entrypoint.sh)`  
+[datanode_entrypoint.sh](datanode_entrypoint.sh)  
 - Создаёт каталог `/usr/local/hadoop/hdfs/datanode` с правами 777 и выполняет переданную команду; гарантирует наличие директории для блоков DataNode перед стартом.  
 
-`[namenode_entrypoint.sh](namenode_entrypoint.sh)`  
+[namenode_entrypoint.sh](namenode_entrypoint.sh)  
 - Создаёт /usr/local/hadoop/hdfs/namenode, выполняет `hdfs namenode -format` и затем запускает основной процесс; форматировать NameNode нужно только при первичной инициализации (иначе потеря метаданных).  
 
-`[core-site.xml](core-site.xml)`  
+[core-site.xml](core-site.xml)  
 - Устанавливает `fs.defaultFS = hdfs://hadoop-namenode:9000` — основной URI HDFS, который должны использовать клиенты и сервисы.  
 
-`[hdfs-site-datanode-1.xml](hdfs-site-datanode-1.xml) (и -2, -3)`  
+[hdfs-site-datanode-1.xml](hdfs-site-datanode-1.xml) (и -2, -3)  
 - Указывает локальную директорию для блоков (`dfs.datanode.data.dir`), hostname DataNode и bind-порты для передачи данных и HTTP; порты кастомные, убедитесь в их доступности и согласованности с сетевой конфигурацией.  
 
 `hdfs-site-namenode.xml`  
@@ -183,92 +183,92 @@ curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
 
 ### Артефакты, подтверждающие выполнение
 
-- `[docker-compose.yml](docker-compose.yml)` — содержит конфигурацию 3 брокеров Kafka, Schema Registry, `kafka-ui`, NameNode и 3 DataNode, а также `app-producer/consumer`.  
+- [docker-compose.yml](docker-compose.yml) — содержит конфигурацию 3 брокеров Kafka, Schema Registry, `kafka-ui`, NameNode и 3 DataNode, а также `app-producer/consumer`.  
 
-- `[Dockerfile](Dockerfile)` — сборка Spring приложения.  
+- [Dockerfile](Dockerfile) — сборка Spring приложения.  
 
-- `[config/core-site.xml](config/core-site.xml)` и `config/hdfs-site-*.xml` — конфигурации Hadoop.  
+- [config/core-site.xml](config/core-site.xml) и `config/hdfs-site-*.xml` — конфигурации Hadoop.  
 
-- `[namenode_entrypoint.sh](namenode_entrypoint.sh)` и `[datanode_entrypoint.sh](datanode_entrypoint.sh)` — скрипты запуска HDFS-узлов (форматирование/ожидание).  
+- [namenode_entrypoint.sh](namenode_entrypoint.sh) и [datanode_entrypoint.sh](datanode_entrypoint.sh) — скрипты запуска HDFS-узлов (форматирование/ожидание).  
 
-- `[src/main/avro/SimpleMessage.avsc](src/main/avro/SimpleMessage.avsc)` — Avro‑схема, зарегистрированная в Schema Registry.  
+- [src/main/avro/SimpleMessage.avsc](src/main/avro/SimpleMessage.avsc) — Avro‑схема, зарегистрированная в Schema Registry.  
 
-- `[src/main/java/...](src/main/java/com/example/kafka)` — код приложения: `[KafkaProducerService](src/main/java/com/example/kafka/producer/KafkaProducerService.java)` (публикация Avro), `[KafkaConsumerService](src/main/java/com/example/kafka/producer/KafkaConsumerService.java)` (чтение и передача в HDFS), `[HdfsService](src/main/java/com/example/kafka/producer/HdfsService.java)` (запись в HDFS).  
+- [src/main/java/...](src/main/java/com/example/kafka) — код приложения: [KafkaProducerService](src/main/java/com/example/kafka/producer/KafkaProducerService.java) (публикация Avro), [KafkaConsumerService](src/main/java/com/example/kafka/producer/KafkaConsumerService.java) (чтение и передача в HDFS), [HdfsService](src/main/java/com/example/kafka/producer/HdfsService.java) (запись в HDFS).  
 
-- `[README.md](README.md)` — инструкции, примеры команд и пример логов/скриншотов.  
+- [README.md](README.md) — инструкции, примеры команд и пример логов/скриншотов.  
 
 ### Скриншоты и логи
 
 Набор изображений из проекта: логи контейнеров, UI Kafka/Hadoop и снимки HDFS. Ниже — встроенные изображения с короткими подписями (файлы находятся в каталоге images/).  
 
 #### Docker — логи и сервисы
-
+  
 ![docker-services-all](images/docker-services-all.png)  
-Список запущенных Docker‑контейнеров (docker ps / docker‑compose ps). Показывает, какие сервисы подняты.
-
+Список запущенных Docker‑контейнеров (docker ps / docker‑compose ps). Показывает, какие сервисы подняты.  
+  
 ![docker-services-all-logs](images/docker-services-all-logs.png)  
-Агрегированные логи всех контейнеров. Быстрый обзор статуса старта и ошибок.
-
+Агрегированные логи всех контейнеров. Быстрый обзор статуса старта и ошибок.  
+  
 ![docker-desktop-all-services-logs](images/docker-desktop-all-services-logs.png)  
-Логи Docker Desktop/агрегат. Диагностика управления контейнерами и сетевых проблем.
-
+Логи Docker Desktop/агрегат. Диагностика управления контейнерами и сетевых проблем.  
+  
 #### Docker — логи сервисов Consumer, Producer
-
+  
 ![docker-consumer-logs](images/docker-consumer-logs.png)  
-Логи Docker‑контейнера Kafka‑Consumer. Показывают подключение к топику и успешное чтение сообщений.
-
+Логи Docker‑контейнера Kafka‑Consumer. Показывают подключение к топику и успешное чтение сообщений.  
+  
 ![docker-producer-logs](images/docker-producer-logs.png)  
-Логи Docker‑контейнера Kafka‑Producer. Демонстрируют успешную отправку сообщений (acks, partition, offset).
-
+Логи Docker‑контейнера Kafka‑Producer. Демонстрируют успешную отправку сообщений (acks, partition, offset).  
+  
 #### Docker — логи сервиса, Schema Registry
-
+  
 ![docker-schema-registry-logs](images/docker-schema-registry-logs.png)  
-Логи контейнера Schema Registry. Старт сервиса, регистрация/валидация схем.
-
+Логи контейнера Schema Registry. Старт сервиса, регистрация/валидация схем.  
+  
 #### Docker — логи сервисов, Hadoop / HDFS (Namenode, Datanode-1,2,3)
-
+    
 ![docker-namenode-logs](images/docker-namenode-logs.png)  
-Логи NameNode (Hadoop). Инициализация метаданных, safe mode, RPC и web UI адрес.
-
+Логи NameNode (Hadoop). Инициализация метаданных, safe mode, RPC и web UI адрес.  
+  
 ![docker-datanode-1-logs](images/docker-datanode-1-logs.png)  
-Логи DataNode #1 (Hadoop). Регистрация на NameNode, heartbeat и работа с блоками.
-
-![docker-datanode-2-logs](images/docker-datanode-2-logs.png)  
-Логи DataNode #2 (Hadoop). Подтверждение распределённого хранения и синхронизации блоков.
-
+Логи DataNode #1 (Hadoop). Регистрация на NameNode, heartbeat и работа с блоками.  
+  
+![docker-datanode-2-logs](images/docker-datanode-2-logs.png)
+Логи DataNode #2 (Hadoop). Подтверждение распределённого хранения и синхронизации блоков.  
+  
 ![docker-datanode-3-logs](images/docker-datanode-3-logs.png)  
-Логи DataNode #3 (Hadoop). Дополнительная нода для отказоустойчивости/репликации.
-
+Логи DataNode #3 (Hadoop). Дополнительная нода для отказоустойчивости/репликации.  
+  
 #### Hadoop / HDFS — UI и структура, веб-консоль
-
+  
 ![hadoop-hdfs-console](images/hadoop-hdfs-console.png)  
-HDFS console / командная работа с файловой системой. Примеры операций (ls, put, get).
-
+HDFS console / командная работа с файловой системой. Примеры операций (ls, put, get).  
+  
 ![hadoop-ui-namenode-overview](images/hadoop-ui-namenode-overview.png)  
-NameNode UI — overview. Состояние кластера, live/dead nodes, количество блоков.
-
+NameNode UI — overview. Состояние кластера, live/dead nodes, количество блоков.  
+  
 ![hadoop-ui-datanode-1-2-3-information](images/hadoop-ui-datanode-1-2-3-information.png)  
-UI Hadoop — сводная информация по трём DataNode. Статусы, дисковая нагрузка и heartbeat.
-
+UI Hadoop — сводная информация по трём DataNode. Статусы, дисковая нагрузка и heartbeat.  
+  
 ![hadoop-ui-datanode-1-overview](images/hadoop-ui-datanode-1-overview.png)  
-Hadoop UI — обзор DataNode #1. Подробные метрики ноды (disk, I/O, last heartbeat).
-
+Hadoop UI — обзор DataNode #1. Подробные метрики ноды (disk, I/O, last heartbeat).  
+  
 ![hadoop-ui-datanode-2-overview](images/hadoop-ui-datanode-2-overview.png)  
-Hadoop UI — обзор DataNode #2. Сравнение с другими нодами по нагрузке.
-
+Hadoop UI — обзор DataNode #2. Сравнение с другими нодами по нагрузке.  
+  
 ![hadoop-ui-datanode-3-overview](images/hadoop-ui-datanode-3-overview.png)  
-Hadoop UI — обзор DataNode #3. Подтверждение репликации и распределения блоков.
-
+Hadoop UI — обзор DataNode #3. Подтверждение репликации и распределения блоков.  
+  
 #### Представление файловой системы
-
+  
 ![hadoop-ui-hdfs](images/hadoop-ui-hdfs.png)  
-HDFS UI — общий вид файловой системы. Навигация и статистика использования.
-
+HDFS UI — общий вид файловой системы. Навигация и статистика использования.  
+  
 ![hadoop-ui-hdfs-directory](images/hadoop-ui-hdfs-directory.png)  
-HDFS UI — просмотр директории. Список файлов, права, размещение блоков.
-
+HDFS UI — просмотр директории. Список файлов, права, размещение блоков.  
+  
 ![hadoop-ui-hdfs-file](images/hadoop-ui-hdfs-file.png)  
-HDFS UI — метаданные конкретного файла. Размер, блоки, расположение по DataNode, checksum.
+HDFS UI — метаданные конкретного файла. Размер, блоки, расположение по DataNode, checksum.  
 
 #### Kafka UI 
 
@@ -283,7 +283,7 @@ Kafka UI — просмотр сообщений в топике. Примеры
 
 #### Schema Registry
 
-![schema-registry-subjects](images/schema-registry/schema-registry-subjects.png)  
+![schema-registry-subjects](images/schema-registry-subjects.png)  
 Schema Registry — список subjects. Подтверждение регистрации схем и доступности endpoint /subjects.
 
 ### Вывод, заключение по выполненной работе
