@@ -121,10 +121,10 @@
 [namenode_entrypoint.sh](namenode_entrypoint.sh)  
 - Создаёт /usr/local/hadoop/hdfs/namenode, выполняет `hdfs namenode -format` и затем запускает основной процесс; форматировать NameNode нужно только при первичной инициализации (иначе потеря метаданных).  
 
-[core-site.xml](core-site.xml)  
+[core-site.xml](config/core-site.xml)  
 - Устанавливает `fs.defaultFS = hdfs://hadoop-namenode:9000` — основной URI HDFS, который должны использовать клиенты и сервисы.  
 
-[hdfs-site-datanode-1.xml](hdfs-site-datanode-1.xml) (и -2, -3)  
+[hdfs-site-datanode-1.xml](config/hdfs-site-datanode-1.xml) (и -2, -3)  
 - Указывает локальную директорию для блоков (`dfs.datanode.data.dir`), hostname DataNode и bind-порты для передачи данных и HTTP; порты кастомные, убедитесь в их доступности и согласованности с сетевой конфигурацией.  
 
 `hdfs-site-namenode.xml`  
