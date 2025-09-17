@@ -193,7 +193,7 @@ curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
 
 - [src/main/avro/SimpleMessage.avsc](src/main/avro/SimpleMessage.avsc) — Avro‑схема, зарегистрированная в Schema Registry.  
 
-- [src/main/java/...](src/main/java/com/example/kafka) — код приложения: [KafkaProducerService](src/main/java/com/example/kafka/producer/KafkaProducerService.java) (публикация Avro), [KafkaConsumerService](src/main/java/com/example/kafka/producer/KafkaConsumerService.java) (чтение и передача в HDFS), [HdfsService](src/main/java/com/example/kafka/producer/HdfsService.java) (запись в HDFS).  
+- [src/main/java/...](src/main/java/com/example/kafka) — код приложения: [KafkaProducerService](src/main/java/com/example/kafka/producer/KafkaProducerService.java) (публикация Avro), [KafkaConsumerService](src/main/java/com/example/kafka/consumer/KafkaConsumerService.java) (чтение и передача в HDFS), [HdfsService](src/main/java/com/example/kafka/hdfs/HdfsService.java) (запись в HDFS).  
 
 - [README.md](README.md) — инструкции, примеры команд и пример логов/скриншотов.  
 
