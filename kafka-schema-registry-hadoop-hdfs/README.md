@@ -14,89 +14,89 @@
 
 ```
 ./
-├── .env                                       # Переменные окружения для docker-compose (версии образов, порты, креды)
-├── docker-compose.yml            # Compose‑файл для запуска Zookeeper/Kafka/SchemaRegistry + HDFS (NameNode + 3 DataNode) + producer/consumer
+├── .env                                   # Переменные окружения для docker-compose (версии образов, порты, креды)
+├── docker-compose.yml                     # Compose‑файл для запуска Zookeeper/Kafka/SchemaRegistry + HDFS (NameNode + 3 DataNode) + producer/consumer
 ├── Dockerfile                             # Multi‑stage Dockerfile для сборки и запуска Java Spring/Gradle приложения (producer/consumer)
-├── README.md                         # Документация: как собрать, запустить и тестировать end‑to‑end (producer → Kafka → consumer → HDFS)
-├── output.txt                              # Пример выходных логов/результатов работы (демо output)
-├── payload.json                         # Пример JSON payload для тестирования producer
-├── settings.gradle                      # Gradle settings (имя проекта, multi‑module если есть)
-├── gradlew                                 # Gradle wrapper (Unix) — запускает сборку с фиксированной версией gradle
-├── gradlew.bat                           # Gradle wrapper (Windows)
-├── gradle/                                  # Gradle wrapper files
+├── README.md                              # Документация: как собрать, запустить и тестировать end‑to‑end (producer → Kafka → consumer → HDFS)
+├── output.txt                             # Пример выходных логов/результатов работы (демо output)
+├── payload.json                           # Пример JSON payload для тестирования producer
+├── settings.gradle                        # Gradle settings (имя проекта, multi‑module если есть)
+├── gradlew                                # Gradle wrapper (Unix) — запускает сборку с фиксированной версией gradle
+├── gradlew.bat                            # Gradle wrapper (Windows)
+├── gradle/                                # Gradle wrapper files
 │   └── wrapper/
 │       ├── gradle-wrapper.jar
 │       └── gradle-wrapper.properties
-├── gradle/                                  # Доп. папка с конфигурацией gradle (если нужна)
+├── gradle/                                # Доп. папка с конфигурацией gradle (если нужна)
 │
-├── images/                                 # Скриншоты и визуальные примеры работы системы
-├── images/                                 # Скриншоты и визуальные примеры работы системы
-│  ├── docker/                              # Скриншоты, связанные с Docker-контейнерами
-│  │  ├── docker-consumer-logs.png                     # Логи Docker-контейнера Kafka Consumer. Демонстрируют успешное потребление сообщений из Kafka.
-│  │  ├── docker-producer-logs.png                      # Логи Docker-контейнера Kafka Producer. Действия по отправке сообщений в Kafka.
-│  │  ├── docker-schema-registry-logs.png           # Логи Docker-контейнера Schema Registry. Операции регистрации и управления схемами данных.
-│  │  ├── docker-datanode-1-logs.png                  # Логи DataNode 1 Hadoop кластера, работающего в Docker.
-│  │  ├── docker-datanode-2-logs.png                  # Логи DataNode 2 Hadoop кластера, работающего в Docker.
-│  │  ├── docker-datanode-3-logs.png                  # Логи DataNode 3 Hadoop кластера, работающего в Docker.
-│  │  ├── docker-namenode-logs.png                    # Логи NameNode Hadoop кластера, работающего в Docker.
-│  │  ├── docker-services-all.png                            # Общий вид запущенных Docker-контейнеров. Показывает, какие сервисы (Kafka, Zookeeper, Hadoop) запущены.
-│  │  ├── docker-services-all-logs.png                   # Общие логи Docker-контейнеров, вероятно, показывающие запуск и инициализацию сервисов.
-│  │  ├── docker-desktop-all-services-logs.png     # Общие логи Docker Desktop, возможно, связанные с управлением контейнерами и сетью.
-│  ├── hadoop/                                                       # Скриншоты, связанные с пользовательским интерфейсом Hadoop
-│  │  ├── hadoop-hdfs-console.png                       # Скриншот консоли HDFS. Команды, выполненные в HDFS.
-│  │  ├── hadoop-ui-datanode-1-2-3-information.png     # Скриншот UI Hadoop, показывающий информацию о всех трех DataNode.
-│  │  └── hadoop-ui-datanode-1-overview.png                 # Скриншот UI Hadoop, показывающий обзор DataNode 1. Информация о дисках, памяти и т.д.
-│  │  ├── hadoop-ui-datanode-2-overview.png                 # Скриншот UI Hadoop, показывающий обзор DataNode 2.
-│  │  ├── hadoop-ui-datanode-3-overview.png                 # Скриншот UI Hadoop, показывающий обзор DataNode 3.
-│  │  ├── hadoop-ui-hdfs-directory.png                             # Скриншот UI Hadoop, показывающий структуру директорий в HDFS.
-│  │  ├── hadoop-ui-hdfs-file.png                                      # Скриншот UI Hadoop, показывающий содержимое файла в HDFS.
-│  │  ├── hadoop-ui-hdfs.png                                             # Скриншот UI Hadoop, показывающий общий вид HDFS.
-│  │  └── hadoop-ui-namenode-overview.png                   # Скриншот UI Hadoop, показывающий обзор NameNode. Информация о кластере, ресурсах и т.д.
-│  ├── kafka/                                                            # Скриншоты, связанные с пользовательским интерфейсом Kafka
-│  │  ├── kafka-ui-brokers.png                                 # Скриншот UI Kafka, показывающий список брокеров в кластере.
-│  │  ├── kafka-ui-topic-messages.png                    # Скриншот UI Kafka, показывающий сообщения в определенной теме.
-│  │  └── kafka-ui-topics.png                                   # Скриншот UI Kafka, показывающий список тем в кластере.
-│  ├── schema-registry/                                           # Скриншоты, связанные с Schema Registry
-│  │  └── schema-registry-subjects.png                   # Скриншот Schema Registry, показывающий список зарегистрированных схем.
+├── images/                                # Скриншоты и визуальные примеры работы системы
+├── images/                                # Скриншоты и визуальные примеры работы системы
+│  ├── docker/                             # Скриншоты, связанные с Docker-контейнерами
+│  │  ├── docker-consumer-logs.png               # Логи Docker-контейнера Kafka Consumer. Демонстрируют успешное потребление сообщений из Kafka.
+│  │  ├── docker-producer-logs.png               # Логи Docker-контейнера Kafka Producer. Действия по отправке сообщений в Kafka.
+│  │  ├── docker-schema-registry-logs.png        # Логи Docker-контейнера Schema Registry. Операции регистрации и управления схемами данных.
+│  │  ├── docker-datanode-1-logs.png             # Логи DataNode 1 Hadoop кластера, работающего в Docker.
+│  │  ├── docker-datanode-2-logs.png             # Логи DataNode 2 Hadoop кластера, работающего в Docker.
+│  │  ├── docker-datanode-3-logs.png             # Логи DataNode 3 Hadoop кластера, работающего в Docker.
+│  │  ├── docker-namenode-logs.png               # Логи NameNode Hadoop кластера, работающего в Docker.
+│  │  ├── docker-services-all.png                # Общий вид запущенных Docker-контейнеров. Показывает, какие сервисы (Kafka, Zookeeper, Hadoop) запущены.
+│  │  ├── docker-services-all-logs.png           # Общие логи Docker-контейнеров, вероятно, показывающие запуск и инициализацию сервисов.
+│  │  ├── docker-desktop-all-services-logs.png   # Общие логи Docker Desktop, возможно, связанные с управлением контейнерами и сетью.
+│  ├── hadoop/                                       # Скриншоты, связанные с пользовательским интерфейсом Hadoop
+│  │  ├── hadoop-hdfs-console.png                    # Скриншот консоли HDFS. Команды, выполненные в HDFS.
+│  │  ├── hadoop-ui-datanode-1-2-3-information.png   # Скриншот UI Hadoop, показывающий информацию о всех трех DataNode.
+│  │  └── hadoop-ui-datanode-1-overview.png          # Скриншот UI Hadoop, показывающий обзор DataNode 1. Информация о дисках, памяти и т.д.
+│  │  ├── hadoop-ui-datanode-2-overview.png          # Скриншот UI Hadoop, показывающий обзор DataNode 2.
+│  │  ├── hadoop-ui-datanode-3-overview.png          # Скриншот UI Hadoop, показывающий обзор DataNode 3.
+│  │  ├── hadoop-ui-hdfs-directory.png               # Скриншот UI Hadoop, показывающий структуру директорий в HDFS.
+│  │  ├── hadoop-ui-hdfs-file.png                    # Скриншот UI Hadoop, показывающий содержимое файла в HDFS.
+│  │  ├── hadoop-ui-hdfs.png                         # Скриншот UI Hadoop, показывающий общий вид HDFS.
+│  │  └── hadoop-ui-namenode-overview.png            # Скриншот UI Hadoop, показывающий обзор NameNode. Информация о кластере, ресурсах и т.д.
+│  ├── kafka/                                    # Скриншоты, связанные с пользовательским интерфейсом Kafka
+│  │  ├── kafka-ui-brokers.png                   # Скриншот UI Kafka, показывающий список брокеров в кластере.
+│  │  ├── kafka-ui-topic-messages.png            # Скриншот UI Kafka, показывающий сообщения в определенной теме.
+│  │  └── kafka-ui-topics.png                    # Скриншот UI Kafka, показывающий список тем в кластере.
+│  ├── schema-registry/                          # Скриншоты, связанные с Schema Registry
+│  │  └── schema-registry-subjects.png           # Скриншот Schema Registry, показывающий список зарегистрированных схем.
 │  │
-├── config/                                            # Hadoop конфигурации (монтируются в Hadoop контейнеры)
-│   ├── core-site.xml                              # fs.defaultFS, tmp dir, и др. (монтируется в все узлы)
-│   ├── hdfs-site-namenode.xml            # Конфиг NameNode (dfs.namenode.name.dir, replication и пр.)
-│   ├── hdfs-site-datanode-1.xml          # Конфиг DataNode #1 (data dirs, ports)
-│   ├── hdfs-site-datanode-2.xml          # Конфиг DataNode #2
-│   └── hdfs-site-datanode-3.xml          # Конфиг DataNode #3
+├── config/                                      # Hadoop конфигурации (монтируются в Hadoop контейнеры)
+│   ├── core-site.xml                            # fs.defaultFS, tmp dir, и др. (монтируется в все узлы)
+│   ├── hdfs-site-namenode.xml                   # Конфиг NameNode (dfs.namenode.name.dir, replication и пр.)
+│   ├── hdfs-site-datanode-1.xml                 # Конфиг DataNode #1 (data dirs, ports)
+│   ├── hdfs-site-datanode-2.xml                 # Конфиг DataNode #2
+│   └── hdfs-site-datanode-3.xml                 # Конфиг DataNode #3
 │
-├── datanode_entrypoint.sh                 # Entrypoint для DataNode (ожидание NameNode, подготовка директорий, запуск)
-├── namenode_entrypoint.sh               # Entrypoint для NameNode (форматирование при первом запуске, запуск демона)
+├── datanode_entrypoint.sh                       # Entrypoint для DataNode (ожидание NameNode, подготовка директорий, запуск)
+├── namenode_entrypoint.sh                       # Entrypoint для NameNode (форматирование при первом запуске, запуск демона)
 │
 ├── src/
 │   └── main/
 │       ├── avro/
-│       │   └── SimpleMessage.avsc          # Avro схема для сообщений (используется Avro serializer + Schema Registry)
+│       │   └── SimpleMessage.avsc               # Avro схема для сообщений (используется Avro serializer + Schema Registry)
 │       ├── java/
 │       │   └── com/
 │       │       └── example/
 │       │           └── kafka/
-│       │               ├── KafkaApplication.java                 # Точка входа Spring Boot (main)
+│       │               ├── KafkaApplication.java          # Точка входа Spring Boot (main)
 │       │               ├── config/
-│       │               │   ├── AppProperties.java                # Бин свойств приложения (bootstrap, schemaRegistry, hdfs)
-│       │               │   ├── KafkaConfig.java                   # Producer/Consumer config, сериализаторы Avro/SchemaRegistry
-│       │               │   ├── KafkaTopicConfig.java           # (Опционально) admin client для создания топиков
-│       │               │   ├── HdfsConfig.java                     # Конфигурация HDFS (FileSystem бин)
-│       │               │   └── HdfsProperties.java               # Свойства HDFS (uri, target dir, user)
+│       │               │   ├── AppProperties.java         # Бин свойств приложения (bootstrap, schemaRegistry, hdfs)
+│       │               │   ├── KafkaConfig.java           # Producer/Consumer config, сериализаторы Avro/SchemaRegistry
+│       │               │   ├── KafkaTopicConfig.java      # (Опционально) admin client для создания топиков
+│       │               │   ├── HdfsConfig.java            # Конфигурация HDFS (FileSystem бин)
+│       │               │   └── HdfsProperties.java        # Свойства HDFS (uri, target dir, user)
 │       │               ├── producer/
-│       │               │   └── KafkaProducerService.java    # Сервис отправки Avro сообщений в Kafka
+│       │               │   └── KafkaProducerService.java  # Сервис отправки Avro сообщений в Kafka
 │       │               ├── consumer/
 │       │               │   └── KafkaConsumerService.java  # Kafka listener: десериализация Avro -> HdfsService
 │       │               └── hdfs/
-│       │                   └── HdfsService.java                     # Логика записи/аппенда в HDFS (temp->rename, партиции)
+│       │                   └── HdfsService.java           # Логика записи/аппенда в HDFS (temp->rename, партиции)
 │       └── resources/
-│           └── application.yml                # Spring profiles и свойства (producer/consumer): Kafka, Schema Registry, HDFS, logging
+│           └── application.yml                            # Spring profiles и свойства (producer/consumer): Kafka, Schema Registry, HDFS, logging
 │
 └── (прочие/необязательные) файлы
-    ├── build.gradle                             # основная конфигурация Gradle сборки (плагины: avro, spring-boot, etc.)
+    ├── build.gradle                           # основная конфигурация Gradle сборки (плагины: avro, spring-boot, etc.)
     ├── settings.gradle                        # доп. настройки Gradle сборки
-    └── other scripts/configs               # любые дополнительные утилиты/скрипты (например миграции, init scripts)
+    └── other scripts/configs                  # любые дополнительные утилиты/скрипты (например миграции, init scripts)
 ```
 
 #### Краткие пояснения по ключевым файлам и их назначению:
